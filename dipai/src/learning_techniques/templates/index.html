@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DipAI Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-box">
+        </div>
+        <form id="chat-form">
+            <input type="text" id="user_input" name="user_input" placeholder="Type a message..." autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#chat-form').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    data: {
+                        user_input: $('#user_input').val()
+                    },
+                    type: 'POST',
+                    url: '/get_response'
+                })
+                .done(function(data) {
+                    if(data && data.user_input && data.DipAI) {
+                        $('#chat-box').append('<div class="user-message">' + data.user_input + '</div>');
+                        $('#chat-box').append('<div class="ai-response">' + data.DipAI + '</div>');
+                    } else {
+                        console.error('Unexpected response format:', data);
+                    }
+                    $('#user_input').val('');
+                    scrollToBottom();
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error('AJAX request failed:', textStatus, errorThrown);
+                });
+            });
+            function scrollToBottom() {
+                var chatBox = document.getElementById('chat-box');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
